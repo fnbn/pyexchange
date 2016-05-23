@@ -625,3 +625,7 @@ def update_item(event, updated_attributes, calendar_item_update_operation_type):
       )
 
   return root
+
+def expand_dl(dl_name):
+  root = M.ExpandDL(M.Mailbox(T.EmailAddress(dl_name)))
+  return root

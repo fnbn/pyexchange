@@ -12,7 +12,7 @@ import logging
 from .exceptions import FailedExchangeException
 
 log = logging.getLogger('pyexchange')
-
+log.debug("connection.py")
 
 class ExchangeBaseConnection(object):
   """ Base class for Exchange connections."""

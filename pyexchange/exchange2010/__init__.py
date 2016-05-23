@@ -9,6 +9,7 @@ import logging
 from ..base.calendar import BaseExchangeCalendarEvent, BaseExchangeCalendarService, ExchangeEventOrganizer, ExchangeEventResponse
 from ..base.folder import BaseExchangeFolder, BaseExchangeFolderService
 from ..base.soap import ExchangeServiceSOAP
+from ..base.list import BaseExchangeDistributionListService
 from ..exceptions import FailedExchangeException, ExchangeStaleChangeKeyException, ExchangeItemNotFoundException, ExchangeInternalServerTransientErrorException, ExchangeIrresolvableConflictException, InvalidEventType
 from ..compat import BASESTRING_TYPES
 
@@ -35,6 +36,9 @@ class Exchange2010Service(ExchangeServiceSOAP):
 
   def folder(self):
     return Exchange2010FolderService(service=self)
+
+  def lists(self):
+    return Exchange2010DistributionListService(service=self)
 
   def _send_soap_request(self, body, headers=None, retries=2, timeout=30, encoding="utf-8"):
     headers = {
@@ -914,3 +918,10 @@ class Exchange2010Folder(BaseExchangeFolder):
       return id_element.get(u"Id", None), id_element.get(u"ChangeKey", None)
     else:
       return None, None
+
+class Exchange2010DistributionListService(BaseExchangeDistributionListService):
+
+  def expand_dl(self, dl_name):
+    body = soap_request.expand_dl(dl_name)
+    response_xml=self.service.send(body)
+    return response_xml
