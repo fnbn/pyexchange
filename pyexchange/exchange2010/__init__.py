@@ -931,6 +931,26 @@ class Exchange2010DistributionList(BaseExchangeDistributionList):
   def _init_from_dl_name(self, dl_name, recursive_expand):
     if recursive_expand:
       raise NotImplementedError
+
     body = soap_request.expand_dl(dl_name)
-    response_xml=self.service.send(body)
-    self.members = response_xml
+    response=self.service.send(body)
+    property_map = {
+      u'name':
+      {
+        u'xpath': u'//t:Name'
+      },
+      u'email':
+      {
+        u'xpath': u'://t:EmailAddress'
+      }}
+    result = []
+
+    members = response.xpath(u'//m:DLExpansion/t:Mailbox', namespaces=soap_request.NAMESPACES)
+
+    for member in members:
+      member_properties = {u'name': member.xpath(u't:Name', namespaces=soap_request.NAMESPACES)[0].text,
+                           u'email': member.xpath(u't:EmailAddress', namespaces=soap_request.NAMESPACES)[0].text}
+      result.append(member_properties)
+      #TODO: leverage self.service._xpath_to_dict()
+
+    self.members = result
