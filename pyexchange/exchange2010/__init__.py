@@ -9,7 +9,7 @@ import logging
 from ..base.calendar import BaseExchangeCalendarEvent, BaseExchangeCalendarService, ExchangeEventOrganizer, ExchangeEventResponse
 from ..base.folder import BaseExchangeFolder, BaseExchangeFolderService
 from ..base.soap import ExchangeServiceSOAP
-from ..base.list import BaseExchangeDistributionListService
+from ..base.list import BaseExchangeDistributionListService, BaseExchangeDistributionList
 from ..exceptions import FailedExchangeException, ExchangeStaleChangeKeyException, ExchangeItemNotFoundException, ExchangeInternalServerTransientErrorException, ExchangeIrresolvableConflictException, InvalidEventType
 from ..compat import BASESTRING_TYPES
 
@@ -921,7 +921,16 @@ class Exchange2010Folder(BaseExchangeFolder):
 
 class Exchange2010DistributionListService(BaseExchangeDistributionListService):
 
-  def expand_dl(self, dl_name):
+  def get_distributionList(self, dl_name, recursive_expand=False):
     body = soap_request.expand_dl(dl_name)
     response_xml=self.service.send(body)
-    return response_xml
+    return Exchange2010DistributionList(self.service, dl_name, recursive_expand)
+
+class Exchange2010DistributionList(BaseExchangeDistributionList):
+
+  def _init_from_dl_name(self, dl_name, recursive_expand):
+    if recursive_expand:
+      raise NotImplementedError
+    body = soap_request.expand_dl(dl_name)
+    response_xml=self.service.send(body)
+    self.members = response_xml
